@@ -2,8 +2,8 @@
 import schedule
 
 class VKBot:
-    def __init__(self,manager):
-        self.manager=manager
+    def __init__(self):
+        pass
     def on_message(self,message) -> bool:
         '''
         Do any needed actions on this message.
@@ -12,18 +12,29 @@ class VKBot:
         list; if True, the message will not be shown to lower-priority bots.
         '''
         return False
+    def send_message(self,*args,**kwargs):
+        '''
+        Send a message on my session.
+
+        This should be replaced with the actual function when the manager connects.
+        '''
+        pass
     def create_jobs(self):
         '''
         Register any repeating actions with the `schedule` module.
         The jobs are instance-identified, so they can be destroyed later.
         To make the job destroyable, set the `origin_bot` field of every method
         to `self`.
+
+        This should be run when the bot is connected to a manager.
         '''
         pass
     def destroy_jobs(self):
         '''
         Delete any jobs created by me in the 'schedule' module.
         Used if the bot needs to be torn down.
+
+        This should be run when the bot is disconnected from a manager.
         '''
         for i in schedule.jobs:
             if i.job_func.bot_id==self:
