@@ -19,6 +19,15 @@ class VKBot:
         This should be replaced with the actual function when the manager connects.
         '''
         pass
+    def send_debug_message(self, *args, **kwargs):
+        '''
+        Send a message on my session.
+        This message may not be actually sent, if the manager doesn't want to
+        send debug messages. Therefore, this should only be used for debug info.
+
+        This should be replaced with the actual function when the manager connects.
+        '''
+        pass
     def create_jobs(self):
         '''
         Register any repeating actions with the `schedule` module.

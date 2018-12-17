@@ -54,7 +54,11 @@ class VKBotManager:
         registration = BotRegistration(bot, session, chat_id)
         def send_message(**kwargs):
             session.send_message(bot, **kwargs)
+        def send_debug_message(**kwargs):
+            if self.log_bot_internal:
+                session.send_debug_message(bot,**kwargs)
         bot.send_message = send_message
+        bot.send_debug_message=send_debug_message
         bot.create_jobs()
         if self.log_bot_internal:
             session.send_message(message='SYSTEM: '+repr(bot)+' was attached.')
@@ -64,6 +68,7 @@ class VKBotManager:
             if bot==i.bot:
                 def send_message(**kwargs):pass
                 bot.send_message=send_message
+                bot.send_debug_message=send_message
                 bot.destroy_jobs()
                 if self.log_bot_internal:
                     i.session.send_message(message='SYSTEM: '+repr(bot)+' was detached.')
