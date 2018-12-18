@@ -18,10 +18,10 @@ class Session:
         This depends on local time being close to server time.
         '''
         messages=[]
-        history = api.messages.getHistory(peer_id=registration.chat_id,count=10)['items']
+        history = self.api.messages.getHistory(peer_id=self.chat_id,count=10)['items']
         for i in history:
             if i['date']>self.latest:
-                self.latest_message=i
+                self.latest=i['date']
                 messages.append(i)
         return messages
     def send_message(self,**params):
@@ -29,9 +29,12 @@ class Session:
         Send a message using this session and update the latest time.
         This depends on local time being close to server time.
         '''
-        self.latest = time.time()
-        params.update({'peer_id':self.chat_id, 'random_id':0})
-        return self.api.messages.send(**params)
+        try:
+            params.update({'peer_id':self.chat_id, 'random_id':0})
+            return_value = self.api.messages.send(**params)
+        except:
+            self.api.messages.send(peer_id=self.chat_id, random_id=0, message='Error while sending message: \n'+'\n'.join(traceback.format_exc().strip().split('\n')[-2:]))
+        self.latest = max(*[i['date'] for i in self.api.messages.getHistory(peer_id=self.chat_id,count=10)['items']])
 
 
 class BotRegistration:
@@ -57,6 +60,11 @@ class VKBotManager:
         def send_debug_message(**kwargs):
             if self.log_bot_internal:
                 session.send_message(**kwargs)
+        def check_messages():
+            for i in session.get_new_messages():
+                bot.on_message(i, session)
+        check_messages.target_bot=bot
+        schedule.every(1).seconds.do(check_messages)
         bot.send_message = send_message
         bot.send_debug_message=send_debug_message
         bot.create_jobs()
@@ -72,6 +80,10 @@ class VKBotManager:
                 bot.send_debug_message(message='SYSTEM: '+repr(bot)+' was detached.')
                 bot.send_message=send_message
                 bot.send_debug_message=send_message
+                for j in schedule.jobs:
+                    if j.__dict__.get('target_bot')==bot:
+                        schedule.jobs.remove(j)
+                        break
                 bot.destroy_jobs()
                 self.bots.remove(i)
     def broadcast(self,**kwargs):
@@ -86,12 +98,10 @@ class VKBotManager:
     def upgrade_bot_jobs(self):
         '''Wrap each job that was created by a bot with error-reporting code.'''
         for i in schedule.jobs:
-            if 'wrapped' not in i.job_func.__dict__:
+            if 'wrapped' not in i.job_func.__dict__ and 'target_bot' not in i.job_func.__dict__:
                 oldfunc=i.job_func
                 args=oldfunc.args
-                keywords=oldfunc.args
-                if keywords==():
-                    keywords=dict()
+                keywords=oldfunc.keywords
                 def func():
                     try:
                         return oldfunc()

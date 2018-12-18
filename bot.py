@@ -4,9 +4,11 @@ import schedule
 class VKBot:
     def __init__(self):
         pass
-    def on_message(self,message) -> bool:
+    def on_message(self, message, session) -> bool:
         '''
-        Do any needed actions on this message.
+        Do any needed actions on this message, possibly using the session object.
+        If the session object is used, it is not cached.
+
         Return a boolean: if it is False, it is assumed that this bot doesn't
         care about this message, and it should be sent to the next bot in the
         list; if True, the message will not be shown to lower-priority bots.
