@@ -3,7 +3,7 @@ import schedule
 
 class VKBot:
     def __init__(self):
-        pass
+        self.session = None
     def on_message(self, message, session) -> bool:
         '''
         Do any needed actions on this message, possibly using the session object.
