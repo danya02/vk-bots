@@ -12,7 +12,7 @@ class UserDataDict:
     """
     A class to wrap the users.get method of VK API.
     """
-    def __new__(cls):
+    def __new__(cls, session):
         if not hasattr(cls, 'instance') or not cls.instance:
             cls.instance = super().__new__(cls)
 
